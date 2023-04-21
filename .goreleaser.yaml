@@ -1,0 +1,69 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+project_name: bilgepump
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    - go mod vendor
+    - go mod download
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+    - goos: windows
+      format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+dockers:
+## standard AMIs e.g. eks m5.2xlarae types
+  - image_templates:
+      - "ghcr.io/armory-io/bilgepump:{{ .Version }}-linux-amd64"
+    use: buildx
+    goos: linux
+    build_flag_templates:
+      - "--platform=linux/amd64"
+## This is graviton2 in AWS like mg5g.2xlarge types
+  - image_templates:
+      - "ghcr.io/armory-io/bilgepump:{{ .Version }}-linux-arm64v8"
+    use: buildx
+    goarch: arm64
+    goos: linux
+    build_flag_templates:
+      - "--platform=linux/arm64/v8"
+
+docker_manifests:
+  - name_template: "ghcr.io/armory-io/bilgepump:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/armory-io/bilgepump:{{ .Version }}-linux-amd64"
+      - "ghcr.io/armory-io/bilgepump:{{ .Version }}-linux-arm64v8"
+
+# The lines beneath this are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj

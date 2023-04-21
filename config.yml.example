@@ -1,0 +1,42 @@
+redis_host: 127.0.0.1
+redis_port: 6379
+
+slack:
+    token: "i-grok-tokens"
+    default_owner: "someguy@armory.io"
+    channel: "#engineering-alerts"
+
+kubernetes:
+  - name: eks-dev
+    kubecontext: arn:aws:eks:us-west-2:1234567890:cluster/eks-example-dev-us-west-2
+    mark_schedule: "@every 30s"
+    sweep_schedule: "@every 2m"
+    notify_schedule: "@every 1m"
+    delete_enabled: false
+    grace_period: "1m"
+    not_namespaces:
+      - prod
+    not_regex:
+      - .*-system.*
+
+aws:
+  - name: my-aws-account
+    max_retries: 20  # optional times we retry aws calls due to intermittent failures
+    accessKeyId: my-access-id
+    secretAccessKey: my-secret-access-key
+    candidates:
+      - ec2
+      - ebs
+      - eks
+    mark_schedule: "" # optional cron syntax schedules. if omitted the default is @hourly
+    sweep_schedule: "@daily" # default
+    notify_schedule: "@every 12h" # default
+    not_tags:
+     - key: foo # must match both key and value exactly
+       value: bar
+       key_regex: "^[Pp]acker-.*" # only needs to match the key to be ignored (optional)
+       value_regex: "" # optional
+     - key_regex: "^aws:arn:foo:.*"
+
+    grace_period: 24h # optional for how long to wait before an asset is deleted. (default: 24h)
+    delete_enabled: false
