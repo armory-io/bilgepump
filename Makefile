@@ -13,7 +13,9 @@ compile:  ## Compile for the local architecture ⚙
 
 .PHONY: lint
 lint: ## Runs the linter
-	golangci-lint run --timeout 60s
+	## Switched to static check, seems to be faster
+	#golangci-lint run --timeout 60s
+	staticcheck 
 
 test: ## 🤓 Run go tests
 	@echo "Testing..."

@@ -37,9 +37,10 @@ jobs:
           go-version: '1.19'
           cache: true
       - name: Lint
-        uses: golangci/golangci-lint-action@v3
+        uses: dominikh/staticcheck-action@v1.3.0
         with:
-          args: --timeout 180s
+          version: "2022.1.1"
+          install-go: false
 
   goreleaser:
     runs-on: ubuntu-latest
